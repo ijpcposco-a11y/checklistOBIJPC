@@ -6,7 +6,7 @@ import 'models.dart';
 import 'db_helper.dart';
 import 'package:signature/signature.dart';
 import 'dart:typed_data';
-import 'package:excel/excel.dart';
+import 'package:excel/excel.dart' as xls;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
