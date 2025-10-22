@@ -1,0 +1,30 @@
+
+name: checklist_ob_kantor
+description: A simple offline Android app for Office Boy daily checklist with local SQLite and Excel export.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=2.18.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  sqflite: ^2.2.8+1
+  path_provider: ^2.0.15
+  path: ^1.8.3
+  intl: ^0.18.1
+  signature: ^5.2.0
+  excel: ^2.0.1
+  permission_handler: ^12.0.1
+  share_plus: ^8.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
