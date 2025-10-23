@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'login_page.dart';
 import 'package:excel/excel.dart' as xls;
 import 'dart:io';
-import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 
 class ChecklistPage extends StatefulWidget {
@@ -15,13 +14,14 @@ class ChecklistPage extends StatefulWidget {
 }
 
 class _ChecklistPageState extends State<ChecklistPage> {
-  // Contoh data checklist sederhana
+  // Data checklist OB
   final List<Map<String, String>> checklist = [
     {'nama': 'Mop lantai', 'status': 'Belum'},
     {'nama': 'Buang sampah', 'status': 'Belum'},
     {'nama': 'Cek pintu', 'status': 'Belum'},
   ];
 
+  // Fungsi logout
   Future<void> logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('isLoggedIn');
@@ -33,22 +33,27 @@ class _ChecklistPageState extends State<ChecklistPage> {
     );
   }
 
-  // Export ke Excel sederhana
+  // Fungsi export ke Excel
   Future<void> exportExcel() async {
     var excel = xls.Excel.createExcel();
     xls.Sheet sheet = excel['Rekap'];
 
+    // Header
     sheet.appendRow(['No', 'Nama Tugas', 'Status']);
+
+    // Data checklist
     for (int i = 0; i < checklist.length; i++) {
       sheet.appendRow([i + 1, checklist[i]['nama'], checklist[i]['status']]);
     }
 
+    // Simpan file di folder dokumen
     final dir = await getApplicationDocumentsDirectory();
     final file = File('${dir.path}/Checklist_OB.xlsx');
     file.writeAsBytesSync(excel.encode()!);
 
     ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('File Excel tersimpan di Dokumen')));
+      SnackBar(content: Text('File Excel tersimpan di: ${file.path}')),
+    );
   }
 
   @override
@@ -60,13 +65,14 @@ class _ChecklistPageState extends State<ChecklistPage> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => logout(context),
-          )
+          ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // Checklist tampil dengan scroll
             Expanded(
               child: ListView.builder(
                 itemCount: checklist.length,
@@ -80,11 +86,19 @@ class _ChecklistPageState extends State<ChecklistPage> {
                 },
               ),
             ),
+
+            const SizedBox(height: 10),
+
+            // Tombol export
             ElevatedButton.icon(
               onPressed: exportExcel,
               icon: const Icon(Icons.file_download),
               label: const Text("Export ke Excel"),
-            )
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueAccent,
+                foregroundColor: Colors.white,
+              ),
+            ),
           ],
         ),
       ),
