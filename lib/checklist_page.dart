@@ -1,5 +1,76 @@
 
-import 'package:permission_handler/permission_handler.dart';
+
+
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'login_page.dart';
+import 'package:excel/excel.dart' as xls;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+
+class ChecklistPage extends StatefulWidget {
+  const ChecklistPage({super.key});
+
+  @override
+  State<ChecklistPage> createState() => _ChecklistPageState();
+}
+
+class _ChecklistPageState extends State<ChecklistPage> {
+  List<Map<String, String>> checklist = [
+    {'nama': 'Mop lantai', 'status': 'Belum', 'note': ''},
+    {'nama': 'Buang sampah', 'status': 'Belum', 'note': ''},
+    {'nama': 'Cek pintu', 'status': 'Belum', 'note': ''},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    loadChecklist();
+  }
+
+  // Fungsi logout
+  Future<void> logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isLoggedIn');
+    await prefs.remove('username');
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+    );
+  }
+
+  // Simpan checklist ke SharedPreferences
+  Future<void> saveChecklist() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setStringList(
+        'checklistData',
+        checklist
+            .map((e) => '${e['nama']}||${e['status']}||${e['note']}')
+            .toList());
+  }
+
+  // Load checklist dari SharedPreferences
+  Future<void> loadChecklist() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getStringList('checklistData');
+    if (data != null) {
+      setState(() {
+        checklist = data.map((e) {
+          final parts = e.split('||');
+          return {
+            'nama': parts[0],
+            'status': parts[1],
+            'note': parts.length > 2 ? parts[2] : '',
+          };
+        }).toList();
+      });
+    }
+  }
+
+  // Fungsi export ke Excel
+  Future<void> exportExcel() async {
+   import 'package:permission_handler/permission_handler.dart';
 
 Future<void> exportExcel() async {
   try {
@@ -53,5 +124,8 @@ Future<void> exportExcel() async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('❌ Gagal export: $e')),
     );
+  }
+}
+
   }
 }
