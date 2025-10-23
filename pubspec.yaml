@@ -18,7 +18,7 @@ dependencies:
   intl: ^0.18.1
   signature: ^5.2.0
   excel: ^2.0.1
-  permission_handler: ^12.0.1
+  permission_handler: ^11.3.0
   share_plus: ^8.0.0
 
 dev_dependencies:
