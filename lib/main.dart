@@ -78,8 +78,8 @@ class _ChecklistPageState extends State<ChecklistPage> {
     String weekStart = DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1)));
     // collect 7 days
     List<ChecklistEntry> entries = await DBHelper.instance.getEntriesRange(weekStart, DateFormat('yyyy-MM-dd').format(DateTime.now()));
-    var excel = Excel.createExcel();
-    Sheet sheet = excel['Rekap'];
+    var excel = xls.Excel.createExcel();
+    xls.Sheet sheet = excel['Rekap'];
     sheet.appendRow(['Tanggal','Kegiatan','Status','Catatan']);
     for (var e in entries) {
       for (var t in e.tasks) {
