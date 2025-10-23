@@ -18,9 +18,9 @@ class ChecklistPage extends StatefulWidget {
 
 class _ChecklistPageState extends State<ChecklistPage> {
   List<Map<String, String>> checklist = [
-    {'nama': 'Mop lantai', 'status': 'Belum', 'note': ''},
-    {'nama': 'Buang sampah', 'status': 'Belum', 'note': ''},
-    {'nama': 'Cek pintu', 'status': 'Belum', 'note': ''},
+    {'nama': 'Membersihkan meja kerja, kursi & lantai ruagan merja ', 'status': 'Belum', 'note': ''},
+    {'nama': 'Menyapu & mengepel seluruh area kantor', 'status': 'Belum', 'note': ''},
+    {'nama': 'Membersihakan toilet & mengganti perlengkapan (tissue, sabun, pewangi)', 'status': 'Belum', 'note': ''},
   ];
 
   @override
