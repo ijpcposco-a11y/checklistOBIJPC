@@ -19,6 +19,10 @@ class _ChecklistPageState extends State<ChecklistPage> {
     {'nama': 'Membersihkan meja kerja, kursi & lantai ruangan kerja', 'status': 'Belum', 'note': ''},
     {'nama': 'Menyapu & mengepel seluruh area kantor', 'status': 'Belum', 'note': ''},
     {'nama': 'Membersihkan toilet & mengganti perlengkapan (tissue, sabun, pewangi)', 'status': 'Belum', 'note': ''},
+    {'nama': 'Membersihkan pantry, mencuci gelas/piring dan menjaga kebersihan alat makan', 'status': 'Belum', 'note': ''},
+    {'nama': 'Membantu menyiapkan ruang rapat dan komsumsi rapat', 'status': 'Belum', 'note': ''},
+    {'nama': 'Membuang sampah ke tempat penampungan sampah', 'status': 'Belum', 'note': ''},
+    {'nama': 'Menjaga ketersediaanperlengkapan kebersihan(sabun, tisu, pewangi, pel, sapu, dll)', 'status': 'Belum', 'note': ''},
   ];
 
   @override
