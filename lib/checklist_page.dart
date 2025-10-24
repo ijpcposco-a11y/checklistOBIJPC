@@ -17,13 +17,13 @@ class ChecklistPage extends StatefulWidget {
 
 class _ChecklistPageState extends State<ChecklistPage> {
   List<Map<String, dynamic>> checklist = [
-    {'nama': 'Membersihkan meja kerja, kursi & lantai ruangan kerja', 'selesai': false, 'note': ''},
-    {'nama': 'Menyapu & mengepel seluruh area kantor', 'selesai': false, 'note': ''},
-    {'nama': 'Membersihkan toilet & mengganti perlengkapan (tissue, sabun, pewangi)', 'selesai': false, 'note': ''},
-    {'nama': 'Membersihkan pantry, mencuci gelas/piring dan menjaga kebersihan alat makan', 'selesai': false, 'note': ''},
-    {'nama': 'Membantu menyiapkan ruang rapat dan komsumsi rapat', 'selesai': false, 'note': ''},
-    {'nama': 'Membuang sampah ke tempat penampungan sampah', 'selesai': false, 'note': ''},
-    {'nama': 'Menjaga ketersediaanperlengkapan kebersihan(sabun, tisu, pewangi, pel, sapu, dll)', 'selesai': false, 'note': ''},
+    {'nama': '1.Membersihkan meja kerja, kursi & lantai ruangan kerja', 'selesai': false, 'note': ''},
+    {'nama': '2.Menyapu & mengepel seluruh area kantor', 'selesai': false, 'note': ''},
+    {'nama': '3.Membersihkan toilet & mengganti perlengkapan (tissue, sabun, pewangi)', 'selesai': false, 'note': ''},
+    {'nama': '4.Membersihkan pantry, mencuci gelas/piring dan menjaga kebersihan alat makan', 'selesai': false, 'note': ''},
+    {'nama': '5.Membantu menyiapkan ruang rapat dan komsumsi rapat', 'selesai': false, 'note': ''},
+    {'nama': '6.Membuang sampah ke tempat penampungan sampah', 'selesai': false, 'note': ''},
+    {'nama': '7.Menjaga ketersediaan perlengkapan kebersihan(sabun, tisu, pewangi, pel, sapu, dll)', 'selesai': false, 'note': ''},
   ];
 
   DateTime selectedDate = DateTime.now();
@@ -47,10 +47,10 @@ class _ChecklistPageState extends State<ChecklistPage> {
 
   Future<void> saveChecklist() async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setStringList(
-      'checklistData',
-      checklist.map((e) => '${e['nama']}||${e['selesai']}||${e['note']}').toList(),
-    );
+    // Pastikan convert bool ke string
+    List<String> dataToSave = checklist.map((e) =>
+        '${e['nama']}||${e['selesai'] ? 'true' : 'false'}||${e['note']}').toList();
+    await prefs.setStringList('checklistData', dataToSave);
   }
 
   Future<void> loadChecklist() async {
@@ -62,7 +62,7 @@ class _ChecklistPageState extends State<ChecklistPage> {
           final parts = e.split('||');
           return {
             'nama': parts[0],
-            'selesai': parts[1] == 'true',
+            'selesai': parts.length > 1 ? parts[1] == 'true' : false,
             'note': parts.length > 2 ? parts[2] : '',
           };
         }).toList();
@@ -75,7 +75,6 @@ class _ChecklistPageState extends State<ChecklistPage> {
       if (await Permission.storage.request().isGranted) {
         var excel = xls.Excel.createExcel();
         xls.Sheet sheet = excel['Rekap'];
-
         sheet.appendRow(['No', 'Tanggal', 'Nama Tugas', 'Status', 'Catatan Kendala']);
 
         for (int i = 0; i < checklist.length; i++) {
@@ -146,6 +145,7 @@ class _ChecklistPageState extends State<ChecklistPage> {
                 itemCount: checklist.length,
                 itemBuilder: (context, index) {
                   return Card(
+                    color: checklist[index]['selesai'] ? Colors.green[100] : null,
                     margin: const EdgeInsets.symmetric(vertical: 6),
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -180,6 +180,8 @@ class _ChecklistPageState extends State<ChecklistPage> {
                               checklist[index]['note'] = val;
                               saveChecklist();
                             },
+                            controller: TextEditingController(
+                                text: checklist[index]['note']),
                           ),
                         ],
                       ),
