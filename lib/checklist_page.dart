@@ -6,6 +6,7 @@ import 'package:excel/excel.dart' as xls;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:intl/intl.dart';
 
 class ChecklistPage extends StatefulWidget {
   const ChecklistPage({super.key});
@@ -15,15 +16,17 @@ class ChecklistPage extends StatefulWidget {
 }
 
 class _ChecklistPageState extends State<ChecklistPage> {
-  List<Map<String, String>> checklist = [
-    {'nama': 'Membersihkan meja kerja, kursi & lantai ruangan kerja', 'status': 'Belum', 'note': ''},
-    {'nama': 'Menyapu & mengepel seluruh area kantor', 'status': 'Belum', 'note': ''},
-    {'nama': 'Membersihkan toilet & mengganti perlengkapan (tissue, sabun, pewangi)', 'status': 'Belum', 'note': ''},
-    {'nama': 'Membersihkan pantry, mencuci gelas/piring dan menjaga kebersihan alat makan', 'status': 'Belum', 'note': ''},
-    {'nama': 'Membantu menyiapkan ruang rapat dan komsumsi rapat', 'status': 'Belum', 'note': ''},
-    {'nama': 'Membuang sampah ke tempat penampungan sampah', 'status': 'Belum', 'note': ''},
-    {'nama': 'Menjaga ketersediaanperlengkapan kebersihan(sabun, tisu, pewangi, pel, sapu, dll)', 'status': 'Belum', 'note': ''},
+  List<Map<String, dynamic>> checklist = [
+    {'nama': 'Membersihkan meja kerja, kursi & lantai ruangan kerja', 'selesai': false, 'note': ''},
+    {'nama': 'Menyapu & mengepel seluruh area kantor', 'selesai': false, 'note': ''},
+    {'nama': 'Membersihkan toilet & mengganti perlengkapan (tissue, sabun, pewangi)', 'selesai': false, 'note': ''},
+    {'nama': 'Membersihkan pantry, mencuci gelas/piring dan menjaga kebersihan alat makan', 'selesai': false, 'note': ''},
+    {'nama': 'Membantu menyiapkan ruang rapat dan komsumsi rapat', 'selesai': false, 'note': ''},
+    {'nama': 'Membuang sampah ke tempat penampungan sampah', 'selesai': false, 'note': ''},
+    {'nama': 'Menjaga ketersediaanperlengkapan kebersihan(sabun, tisu, pewangi, pel, sapu, dll)', 'selesai': false, 'note': ''},
   ];
+
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -46,7 +49,7 @@ class _ChecklistPageState extends State<ChecklistPage> {
     final prefs = await SharedPreferences.getInstance();
     prefs.setStringList(
       'checklistData',
-      checklist.map((e) => '${e['nama']}||${e['status']}||${e['note']}').toList(),
+      checklist.map((e) => '${e['nama']}||${e['selesai']}||${e['note']}').toList(),
     );
   }
 
@@ -59,7 +62,7 @@ class _ChecklistPageState extends State<ChecklistPage> {
           final parts = e.split('||');
           return {
             'nama': parts[0],
-            'status': parts[1],
+            'selesai': parts[1] == 'true',
             'note': parts.length > 2 ? parts[2] : '',
           };
         }).toList();
@@ -67,29 +70,25 @@ class _ChecklistPageState extends State<ChecklistPage> {
     }
   }
 
-  // ✅ Fungsi export Excel sudah benar & utuh
   Future<void> exportExcel() async {
     try {
       if (await Permission.storage.request().isGranted) {
         var excel = xls.Excel.createExcel();
         xls.Sheet sheet = excel['Rekap'];
 
-        // Header
-        sheet.appendRow(['No', 'Nama Tugas', 'Status', 'Catatan Kendala']);
+        sheet.appendRow(['No', 'Tanggal', 'Nama Tugas', 'Status', 'Catatan Kendala']);
 
-        // Data checklist
         for (int i = 0; i < checklist.length; i++) {
           sheet.appendRow([
             i + 1,
+            DateFormat('yyyy-MM-dd').format(selectedDate),
             checklist[i]['nama'],
-            checklist[i]['status'],
+            checklist[i]['selesai'] ? 'Selesai' : 'Belum',
             checklist[i]['note'],
           ]);
         }
 
-        // Nama file
-        String fileName =
-            'Checklist_OB_${DateTime.now().toIso8601String().split("T")[0]}.xlsx';
+        String fileName = 'Checklist_OB_${DateFormat('yyyyMMdd').format(selectedDate)}.xlsx';
 
         Directory? downloadsDir;
         if (Platform.isAndroid) {
@@ -123,55 +122,74 @@ class _ChecklistPageState extends State<ChecklistPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.lightBlue[100],
       appBar: AppBar(
         title: const Text('Checklist OB'),
+        backgroundColor: Colors.blueAccent,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: saveChecklist,
-          ),
-          IconButton(
-            icon: const Icon(Icons.download),
-            onPressed: exportExcel,
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => logout(context),
-          ),
+          IconButton(icon: const Icon(Icons.save), onPressed: saveChecklist),
+          IconButton(icon: const Icon(Icons.download), onPressed: exportExcel),
+          IconButton(icon: const Icon(Icons.logout), onPressed: () => logout(context)),
         ],
       ),
-      body: ListView.builder(
-        itemCount: checklist.length,
-        itemBuilder: (context, index) {
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            child: ListTile(
-              title: Text(checklist[index]['nama'] ?? ''),
-              subtitle: TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Catatan Kendala',
-                ),
-                onChanged: (val) {
-                  checklist[index]['note'] = val;
-                  saveChecklist();
-                },
-              ),
-              trailing: DropdownButton<String>(
-                value: checklist[index]['status'],
-                items: const [
-                  DropdownMenuItem(value: 'Belum', child: Text('Belum')),
-                  DropdownMenuItem(value: 'Selesai', child: Text('Selesai')),
-                ],
-                onChanged: (val) {
-                  setState(() {
-                    checklist[index]['status'] = val!;
-                    saveChecklist();
-                  });
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          children: [
+            Text(
+              'Tanggal: ${DateFormat('EEEE, dd MMMM yyyy').format(selectedDate)}',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: ListView.builder(
+                itemCount: checklist.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 6),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(checklist[index]['nama'] ?? '',
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                              ),
+                              Checkbox(
+                                value: checklist[index]['selesai'],
+                                onChanged: (val) {
+                                  setState(() {
+                                    checklist[index]['selesai'] = val!;
+                                    saveChecklist();
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          TextField(
+                            decoration: const InputDecoration(
+                              labelText: 'Catatan Kendala',
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                            onChanged: (val) {
+                              checklist[index]['note'] = val;
+                              saveChecklist();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 },
               ),
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
