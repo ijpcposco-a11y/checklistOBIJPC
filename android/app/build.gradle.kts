@@ -11,7 +11,7 @@ android {
     ndkVersion = flutter.ndkVersion
 
     dexOptions {
-        javaMaxHeapSize "4g"
+        javaMaxHeapSize = "4g"
     }
 
     compileOptions {
