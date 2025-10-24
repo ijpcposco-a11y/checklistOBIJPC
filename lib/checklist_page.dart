@@ -120,7 +120,7 @@ class _ChecklistPageState extends State<ChecklistPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Checklist OB Kantor'),
+        title: const Text('Checklist OB'),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
